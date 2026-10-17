@@ -1,0 +1,8 @@
+.env
+secrets/
+*.db
+*.duckdb
+.venv/
+__pycache__/
+.pytest_cache/
+data/raw/

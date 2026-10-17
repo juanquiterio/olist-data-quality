@@ -1,0 +1,817 @@
+{
+  "generated_at": "2026-10-16T14:18:10.489290+00:00",
+  "duration_seconds": 3.56,
+  "tables": {
+    "customers": 99441,
+    "sellers": 3095,
+    "products": 32951,
+    "orders": 99441,
+    "order_items": 112650,
+    "order_payments": 103886,
+    "order_reviews": 99224,
+    "category_translation": 71
+  },
+  "summary": {
+    "quality_score_pct": 99.85,
+    "rules_total": 36,
+    "rules_passed": 20,
+    "rules_failed": 16,
+    "rules_skipped": 0,
+    "failed_by_severity": {
+      "critical": 0,
+      "high": 4,
+      "medium": 12,
+      "low": 0
+    },
+    "by_dimension": {
+      "completeness": {
+        "rules": 6,
+        "rules_failed": 6,
+        "score_pct": 99.378
+      },
+      "consistency": {
+        "rules": 6,
+        "rules_failed": 4,
+        "score_pct": 99.87
+      },
+      "referential_integrity": {
+        "rules": 9,
+        "rules_failed": 2,
+        "score_pct": 99.995
+      },
+      "uniqueness": {
+        "rules": 8,
+        "rules_failed": 1,
+        "score_pct": 99.898
+      },
+      "validity": {
+        "rules": 7,
+        "rules_failed": 3,
+        "score_pct": 99.998
+      }
+    },
+    "by_table": {
+      "category_translation": {
+        "rules": 1,
+        "rules_failed": 0,
+        "score_pct": 100.0
+      },
+      "customers": {
+        "rules": 1,
+        "rules_failed": 0,
+        "score_pct": 100.0
+      },
+      "order_items": {
+        "rules": 6,
+        "rules_failed": 0,
+        "score_pct": 100.0
+      },
+      "order_payments": {
+        "rules": 6,
+        "rules_failed": 4,
+        "score_pct": 99.934
+      },
+      "order_reviews": {
+        "rules": 3,
+        "rules_failed": 1,
+        "score_pct": 99.727
+      },
+      "orders": {
+        "rules": 13,
+        "rules_failed": 7,
+        "score_pct": 99.968
+      },
+      "products": {
+        "rules": 5,
+        "rules_failed": 4,
+        "score_pct": 99.25
+      },
+      "sellers": {
+        "rules": 1,
+        "rules_failed": 0,
+        "score_pct": 100.0
+      }
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "uniq_reviews_id",
+      "table": "order_reviews",
+      "dimension": "uniqueness",
+      "severity": "high",
+      "description": "review_id is unique",
+      "rows_checked": 99224,
+      "rows_failed": 814,
+      "pass_rate_pct": 99.18,
+      "status": "fail",
+      "sample": [
+        {
+          "review_id": "3242cc306a9218d0377831e175d62fbf"
+        },
+        {
+          "review_id": "308316408775d1600dad81bd3184556d"
+        },
+        {
+          "review_id": "8ee90ac383cf825bb7f4756130d4e74a"
+        },
+        {
+          "review_id": "d433c252647c51309432ca0b763f969b"
+        },
+        {
+          "review_id": "03a6a25db577d0689440933055111897"
+        }
+      ],
+      "duration_seconds": 0.062
+    },
+    {
+      "rule_id": "cons_payments_match_items",
+      "table": "order_payments",
+      "dimension": "consistency",
+      "severity": "high",
+      "description": "Money paid matches items plus freight per order",
+      "rows_checked": 98665,
+      "rows_failed": 378,
+      "pass_rate_pct": 99.617,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "00789ce015e7e5791c7914f32bb4fad4",
+          "expected": "168.83",
+          "paid": "190.81",
+          "difference": "21.98"
+        },
+        {
+          "order_id": "016726239765c18f66826453f39c64e3",
+          "expected": "235.13",
+          "paid": "265.77",
+          "difference": "30.64"
+        },
+        {
+          "order_id": "01e51b7c3025655646143d09b911e1d7",
+          "expected": "33.1",
+          "paid": "35.02",
+          "difference": "1.92"
+        },
+        {
+          "order_id": "028aa7c930356788f861ed1b7f984819",
+          "expected": "57.53",
+          "paid": "62.94",
+          "difference": "5.41"
+        },
+        {
+          "order_id": "02f4dd90ba0feb8ec394cac05862d2b5",
+          "expected": "130.96",
+          "paid": "141.65",
+          "difference": "10.69"
+        }
+      ],
+      "duration_seconds": 0.958
+    },
+    {
+      "rule_id": "null_orders_customer_date",
+      "table": "orders",
+      "dimension": "completeness",
+      "severity": "high",
+      "description": "Delivered orders have a customer delivery date",
+      "rows_checked": 96478,
+      "rows_failed": 8,
+      "pass_rate_pct": 99.992,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "2d1e2d5bf4dc7227b3bfebb81328c15f"
+        },
+        {
+          "order_id": "f5dd62b788049ad9fc0526e3ad11a097"
+        },
+        {
+          "order_id": "2ebdfc4f15f23b91474edf87475f108e"
+        },
+        {
+          "order_id": "e69f75a717d64fc5ecdfae42b2e8e086"
+        },
+        {
+          "order_id": "0d3268bad9b086af767785e3f0fc0133"
+        }
+      ],
+      "duration_seconds": 0.112
+    },
+    {
+      "rule_id": "orders_have_payments",
+      "table": "orders",
+      "dimension": "referential_integrity",
+      "severity": "high",
+      "description": "Every order has at least one payment",
+      "rows_checked": 99441,
+      "rows_failed": 1,
+      "pass_rate_pct": 99.999,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "bfbd0f9bdef84302105ad712db648a6c"
+        }
+      ],
+      "duration_seconds": 0.178
+    },
+    {
+      "rule_id": "null_products_category",
+      "table": "products",
+      "dimension": "completeness",
+      "severity": "medium",
+      "description": "Products have a category",
+      "rows_checked": 32951,
+      "rows_failed": 610,
+      "pass_rate_pct": 98.149,
+      "status": "fail",
+      "sample": [
+        {
+          "product_id": "a41e356c76fab66334f36de622ecbd3a"
+        },
+        {
+          "product_id": "d8dee61c2034d6d075997acef1870e9b"
+        },
+        {
+          "product_id": "56139431d72cd51f19eb9f7dae4d1617"
+        },
+        {
+          "product_id": "46b48281eb6d663ced748f324108c733"
+        },
+        {
+          "product_id": "5fb61f482620cb672f5e586bb132eae9"
+        }
+      ],
+      "duration_seconds": 0.018
+    },
+    {
+      "rule_id": "null_products_content",
+      "table": "products",
+      "dimension": "completeness",
+      "severity": "medium",
+      "description": "Products have name length, description length and photo count",
+      "rows_checked": 32951,
+      "rows_failed": 610,
+      "pass_rate_pct": 98.149,
+      "status": "fail",
+      "sample": [
+        {
+          "product_id": "a41e356c76fab66334f36de622ecbd3a"
+        },
+        {
+          "product_id": "d8dee61c2034d6d075997acef1870e9b"
+        },
+        {
+          "product_id": "56139431d72cd51f19eb9f7dae4d1617"
+        },
+        {
+          "product_id": "46b48281eb6d663ced748f324108c733"
+        },
+        {
+          "product_id": "5fb61f482620cb672f5e586bb132eae9"
+        }
+      ],
+      "duration_seconds": 0.013
+    },
+    {
+      "rule_id": "cons_undelivered_no_delivery_date",
+      "table": "orders",
+      "dimension": "consistency",
+      "severity": "medium",
+      "description": "Orders not marked delivered have no customer delivery date",
+      "rows_checked": 2963,
+      "rows_failed": 6,
+      "pass_rate_pct": 99.798,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "1950d777989f6a877539f53795b4c3c3",
+          "order_status": "canceled"
+        },
+        {
+          "order_id": "dabf2b0e35b423f94618bf965fcb7514",
+          "order_status": "canceled"
+        },
+        {
+          "order_id": "770d331c84e5b214bd9dc70a10b829d0",
+          "order_status": "canceled"
+        },
+        {
+          "order_id": "8beb59392e21af5eb9547ae1a9938d06",
+          "order_status": "canceled"
+        },
+        {
+          "order_id": "65d1e226dfaeb8cdc42f665422522d14",
+          "order_status": "canceled"
+        }
+      ],
+      "duration_seconds": 0.061
+    },
+    {
+      "rule_id": "cons_carrier_after_purchase",
+      "table": "orders",
+      "dimension": "consistency",
+      "severity": "medium",
+      "description": "Carrier handoff happens on or after purchase",
+      "rows_checked": 97658,
+      "rows_failed": 166,
+      "pass_rate_pct": 99.83,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "b9afddbdcfadc9a87b41a83271c3e888"
+        },
+        {
+          "order_id": "ad133696906f6a78826daa0911b7daec"
+        },
+        {
+          "order_id": "74e033208dc13a7b8127eb8e73d09b76"
+        },
+        {
+          "order_id": "a6b58794fd2ba533359a76c08df576e3"
+        },
+        {
+          "order_id": "5792e0b1c8c8a2bf53af468c9a422c88"
+        }
+      ],
+      "duration_seconds": 0.08
+    },
+    {
+      "rule_id": "fk_products_category",
+      "table": "products",
+      "dimension": "referential_integrity",
+      "severity": "medium",
+      "description": "Product categories exist in the translation table",
+      "rows_checked": 32341,
+      "rows_failed": 13,
+      "pass_rate_pct": 99.96,
+      "status": "fail",
+      "sample": [
+        {
+          "product_category_name": "pc_gamer"
+        },
+        {
+          "product_category_name": "portateis_cozinha_e_preparadores_de_alimentos"
+        },
+        {
+          "product_category_name": "portateis_cozinha_e_preparadores_de_alimentos"
+        },
+        {
+          "product_category_name": "pc_gamer"
+        },
+        {
+          "product_category_name": "portateis_cozinha_e_preparadores_de_alimentos"
+        }
+      ],
+      "duration_seconds": 0.034
+    },
+    {
+      "rule_id": "cons_delivery_after_carrier",
+      "table": "orders",
+      "dimension": "consistency",
+      "severity": "medium",
+      "description": "Customer delivery happens on or after carrier handoff",
+      "rows_checked": 96475,
+      "rows_failed": 23,
+      "pass_rate_pct": 99.976,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "a1abeb653a4d4cd1e142ccb8c82cd069"
+        },
+        {
+          "order_id": "383aa8b2724fe452d9ccd9934a8c628b"
+        },
+        {
+          "order_id": "cb1134f9010d242e9515ad1c78ec0c39"
+        },
+        {
+          "order_id": "dceb62e8fa94b46006c9554fed743df0"
+        },
+        {
+          "order_id": "5f9d46795c3126674e52becb3a1a517f"
+        }
+      ],
+      "duration_seconds": 0.081
+    },
+    {
+      "rule_id": "null_orders_approved_at",
+      "table": "orders",
+      "dimension": "completeness",
+      "severity": "medium",
+      "description": "Orders past 'created' have an approval timestamp",
+      "rows_checked": 98202,
+      "rows_failed": 14,
+      "pass_rate_pct": 99.986,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "e04abd8149ef81b95221e88f6ed9ab6a"
+        },
+        {
+          "order_id": "8a9adc69528e1001fc68dd0aaebbb54a"
+        },
+        {
+          "order_id": "7013bcfc1c97fe719a7b5e05e61c12db"
+        },
+        {
+          "order_id": "5cf925b116421afa85ee25e99b4c34fb"
+        },
+        {
+          "order_id": "12a95a3c06dbaec84bcfb0e2da5d228a"
+        }
+      ],
+      "duration_seconds": 0.101
+    },
+    {
+      "rule_id": "valid_payment_value",
+      "table": "order_payments",
+      "dimension": "validity",
+      "severity": "medium",
+      "description": "Payment value is positive",
+      "rows_checked": 103886,
+      "rows_failed": 9,
+      "pass_rate_pct": 99.991,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "8bcbe01d44d147f901cd3192671144db",
+          "payment_sequential": "4",
+          "payment_value": "0.0"
+        },
+        {
+          "order_id": "fa65dad1b0e818e3ccc5cb0e39231352",
+          "payment_sequential": "14",
+          "payment_value": "0.0"
+        },
+        {
+          "order_id": "6ccb433e00daae1283ccc956189c82ae",
+          "payment_sequential": "4",
+          "payment_value": "0.0"
+        },
+        {
+          "order_id": "4637ca194b6387e2d538dc89b124b0ee",
+          "payment_sequential": "1",
+          "payment_value": "0.0"
+        },
+        {
+          "order_id": "00b1cb0320190ca0daa2c88b35206009",
+          "payment_sequential": "1",
+          "payment_value": "0.0"
+        }
+      ],
+      "duration_seconds": 0.015
+    },
+    {
+      "rule_id": "null_products_dimensions",
+      "table": "products",
+      "dimension": "completeness",
+      "severity": "medium",
+      "description": "Products have weight and dimensions",
+      "rows_checked": 32951,
+      "rows_failed": 2,
+      "pass_rate_pct": 99.994,
+      "status": "fail",
+      "sample": [
+        {
+          "product_id": "09ff539a621711667c43eba6a3bd8466"
+        },
+        {
+          "product_id": "5eb564652db742ff8f28759cd8d2652a"
+        }
+      ],
+      "duration_seconds": 0.015
+    },
+    {
+      "rule_id": "valid_payment_type",
+      "table": "order_payments",
+      "dimension": "validity",
+      "severity": "medium",
+      "description": "Payment type is a known value",
+      "rows_checked": 103886,
+      "rows_failed": 3,
+      "pass_rate_pct": 99.997,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "4637ca194b6387e2d538dc89b124b0ee",
+          "payment_sequential": "1",
+          "payment_type": "not_defined"
+        },
+        {
+          "order_id": "00b1cb0320190ca0daa2c88b35206009",
+          "payment_sequential": "1",
+          "payment_type": "not_defined"
+        },
+        {
+          "order_id": "c8c528189310eaa44a745b8d9d26908b",
+          "payment_sequential": "1",
+          "payment_type": "not_defined"
+        }
+      ],
+      "duration_seconds": 0.034
+    },
+    {
+      "rule_id": "null_orders_carrier_date",
+      "table": "orders",
+      "dimension": "completeness",
+      "severity": "medium",
+      "description": "Shipped or delivered orders have a carrier handoff date",
+      "rows_checked": 97585,
+      "rows_failed": 2,
+      "pass_rate_pct": 99.998,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "2aa91108853cecb43c84a5dc5b277475"
+        },
+        {
+          "order_id": "2d858f451373b04fb5c984a1cc2defaf"
+        }
+      ],
+      "duration_seconds": 0.098
+    },
+    {
+      "rule_id": "valid_payment_installments",
+      "table": "order_payments",
+      "dimension": "validity",
+      "severity": "medium",
+      "description": "Payments have at least one installment",
+      "rows_checked": 103886,
+      "rows_failed": 2,
+      "pass_rate_pct": 99.998,
+      "status": "fail",
+      "sample": [
+        {
+          "order_id": "744bade1fcf9ff3f31d860ace076d422",
+          "payment_sequential": "2",
+          "payment_installments": "0"
+        },
+        {
+          "order_id": "1a57108394169c0b47d8f876acc9ba2d",
+          "payment_sequential": "2",
+          "payment_installments": "0"
+        }
+      ],
+      "duration_seconds": 0.016
+    },
+    {
+      "rule_id": "uniq_customers_id",
+      "table": "customers",
+      "dimension": "uniqueness",
+      "severity": "critical",
+      "description": "customer_id is unique",
+      "rows_checked": 99441,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.057
+    },
+    {
+      "rule_id": "uniq_orders_id",
+      "table": "orders",
+      "dimension": "uniqueness",
+      "severity": "critical",
+      "description": "order_id is unique",
+      "rows_checked": 99441,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.059
+    },
+    {
+      "rule_id": "uniq_products_id",
+      "table": "products",
+      "dimension": "uniqueness",
+      "severity": "critical",
+      "description": "product_id is unique",
+      "rows_checked": 32951,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.015
+    },
+    {
+      "rule_id": "uniq_sellers_id",
+      "table": "sellers",
+      "dimension": "uniqueness",
+      "severity": "critical",
+      "description": "seller_id is unique",
+      "rows_checked": 3095,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.003
+    },
+    {
+      "rule_id": "uniq_order_items_pk",
+      "table": "order_items",
+      "dimension": "uniqueness",
+      "severity": "critical",
+      "description": "(order_id, order_item_id) is unique",
+      "rows_checked": 112650,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.092
+    },
+    {
+      "rule_id": "uniq_order_payments_pk",
+      "table": "order_payments",
+      "dimension": "uniqueness",
+      "severity": "critical",
+      "description": "(order_id, payment_sequential) is unique",
+      "rows_checked": 103886,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.081
+    },
+    {
+      "rule_id": "fk_orders_customer",
+      "table": "orders",
+      "dimension": "referential_integrity",
+      "severity": "critical",
+      "description": "Every order has a customer",
+      "rows_checked": 99441,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.213
+    },
+    {
+      "rule_id": "fk_items_order",
+      "table": "order_items",
+      "dimension": "referential_integrity",
+      "severity": "critical",
+      "description": "Every item belongs to an order",
+      "rows_checked": 112650,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.182
+    },
+    {
+      "rule_id": "fk_payments_order",
+      "table": "order_payments",
+      "dimension": "referential_integrity",
+      "severity": "critical",
+      "description": "Every payment belongs to an order",
+      "rows_checked": 103886,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.113
+    },
+    {
+      "rule_id": "fk_items_product",
+      "table": "order_items",
+      "dimension": "referential_integrity",
+      "severity": "high",
+      "description": "Every item references a known product",
+      "rows_checked": 112650,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.073
+    },
+    {
+      "rule_id": "fk_items_seller",
+      "table": "order_items",
+      "dimension": "referential_integrity",
+      "severity": "high",
+      "description": "Every item references a known seller",
+      "rows_checked": 112650,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.052
+    },
+    {
+      "rule_id": "fk_reviews_order",
+      "table": "order_reviews",
+      "dimension": "referential_integrity",
+      "severity": "high",
+      "description": "Every review belongs to an order",
+      "rows_checked": 99224,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.199
+    },
+    {
+      "rule_id": "orders_delivered_have_items",
+      "table": "orders",
+      "dimension": "referential_integrity",
+      "severity": "high",
+      "description": "Delivered orders have at least one item",
+      "rows_checked": 96478,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.284
+    },
+    {
+      "rule_id": "valid_order_status",
+      "table": "orders",
+      "dimension": "validity",
+      "severity": "high",
+      "description": "Order status is a known value",
+      "rows_checked": 99441,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.029
+    },
+    {
+      "rule_id": "valid_item_price",
+      "table": "order_items",
+      "dimension": "validity",
+      "severity": "high",
+      "description": "Item price is positive",
+      "rows_checked": 112650,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.017
+    },
+    {
+      "rule_id": "valid_review_score",
+      "table": "order_reviews",
+      "dimension": "validity",
+      "severity": "high",
+      "description": "Review score is between 1 and 5",
+      "rows_checked": 99224,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.016
+    },
+    {
+      "rule_id": "cons_delivery_after_purchase",
+      "table": "orders",
+      "dimension": "consistency",
+      "severity": "high",
+      "description": "Customer delivery happens on or after purchase",
+      "rows_checked": 96476,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.084
+    },
+    {
+      "rule_id": "uniq_translation_category",
+      "table": "category_translation",
+      "dimension": "uniqueness",
+      "severity": "medium",
+      "description": "product_category_name is unique",
+      "rows_checked": 71,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.003
+    },
+    {
+      "rule_id": "valid_item_freight",
+      "table": "order_items",
+      "dimension": "validity",
+      "severity": "medium",
+      "description": "Freight value is not negative",
+      "rows_checked": 112650,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.016
+    },
+    {
+      "rule_id": "cons_approved_after_purchase",
+      "table": "orders",
+      "dimension": "consistency",
+      "severity": "medium",
+      "description": "Approval happens on or after purchase",
+      "rows_checked": 99281,
+      "rows_failed": 0,
+      "pass_rate_pct": 100.0,
+      "status": "pass",
+      "sample": [],
+      "duration_seconds": 0.095
+    }
+  ]
+}

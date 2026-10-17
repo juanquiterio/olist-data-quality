@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Quality Lab</title>
+  <style>
+:root {
+  --bg: #0b0d10;
+  --panel: #12161c;
+  --panel-border: #1f2530;
+  --panel-border-soft: #1a1f28;
+  --text: #e7ebee;
+  --muted: #838d99;
+  --muted-dim: #596270;
+
+  --accent: #37c98f;
+  --good: #37c98f;
+  --medium: #e0a940;
+  --high: #ec8a4a;
+  --poor: #e2574f;
+  --low: #7f94ad;
+
+  --radius: 10px;
+  --radius-sm: 7px;
+
+  --font-body: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.stage { max-width: 780px; margin: 0 auto; padding: 40px 20px 72px; }
+
+.page-title { font-size: 22px; font-weight: 650; margin: 0 0 4px; }
+.page-sub { font-size: 13px; color: var(--muted); margin: 0 0 26px; line-height: 1.5; }
+
+.hidden { display: none !important; }
+
+/* ---------- Startup ---------- */
+
+.startup {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  padding: 36px 24px;
+  text-align: center;
+}
+
+.spinner {
+  width: 22px; height: 22px;
+  margin: 0 auto 16px;
+  border: 2px solid var(--panel-border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.startup__title { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+.startup__msg { font-size: 12.5px; color: var(--muted); margin: 0; line-height: 1.55; }
+
+.btn {
+  margin-top: 16px;
+  background: var(--accent);
+  color: #06130d;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 18px;
+  cursor: pointer;
+}
+
+/* ---------- Shared ---------- */
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.section { margin-top: 22px; }
+.section-title { font-size: 13px; font-weight: 650; color: var(--muted); margin: 0 0 10px; }
+
+.empty, .err { padding: 28px 0; text-align: center; font-size: 13px; color: var(--muted-dim); }
+.err { color: var(--poor); }
+
+.link-btn {
+  background: none; border: none; color: var(--muted);
+  font-size: 12.5px; padding: 0; cursor: pointer;
+  text-decoration: underline; text-decoration-color: var(--panel-border); text-underline-offset: 3px;
+}
+.link-btn:hover { color: var(--text); }
+
+.c-good { color: var(--good); }
+.c-medium { color: var(--medium); }
+.c-high { color: var(--high); }
+.c-poor { color: var(--poor); }
+.c-low { color: var(--low); }
+
+/* ---------- Hero ---------- */
+
+.hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+
+.hero__count { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+.hero__label { font-size: 15px; font-weight: 600; margin: 6px 0 4px; }
+.hero__sub { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+.hero__sev { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; font-weight: 600; }
+
+.score { text-align: right; flex-shrink: 0; }
+.score__value { font-size: 18px; font-weight: 650; color: var(--muted); font-variant-numeric: tabular-nums; }
+.score__label { font-size: 11px; color: var(--muted-dim); margin-top: 2px; }
+
+.hero__foot {
+  margin-top: 16px; padding-top: 12px;
+  border-top: 1px solid var(--panel-border-soft);
+  font-size: 11.5px; color: var(--muted-dim); line-height: 1.5;
+}
+
+/* ---------- Dimension tiles ---------- */
+
+.dims { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 8px; }
+
+.dim {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.dim:hover { border-color: var(--muted-dim); }
+.dim.is-active { border-color: var(--accent); background: rgba(55, 201, 143, 0.07); }
+.dim__name { font-size: 12px; color: var(--muted); text-transform: capitalize; }
+.dim__val { font-size: 15px; font-weight: 650; margin-top: 3px; }
+.dim__of { font-size: 11px; color: var(--muted-dim); font-weight: 400; margin-left: 4px; }
+
+/* ---------- Filters ---------- */
+
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 14px; }
+
+.seg { display: flex; gap: 4px; }
+
+.seg-btn {
+  background: #0d1015;
+  border: 1px solid var(--panel-border);
+  color: var(--muted);
+  font-size: 12px;
+  padding: 6px 11px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.seg-btn:hover { color: var(--text); }
+.seg-btn.is-active { color: var(--accent); border-color: var(--accent); background: rgba(55, 201, 143, 0.08); }
+.seg-btn:disabled { opacity: 0.4; cursor: default; }
+
+select {
+  background: #0d1015;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 12px;
+  padding: 7px 10px;
+  outline: none;
+  font-family: inherit;
+}
+
+select:focus { border-color: var(--accent); }
+
+/* ---------- Rule rows ---------- */
+
+.rule { border-bottom: 1px solid var(--panel-border-soft); }
+.rule:last-child { border-bottom: none; }
+
+.rule__head {
+  width: 100%;
+  background: none; border: none; color: inherit; font-family: inherit;
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 13px 4px;
+  cursor: pointer; text-align: left;
+}
+
+.rule__head:hover { background: rgba(255, 255, 255, 0.02); }
+
+.sev {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 2px 8px; border-radius: 100px; flex-shrink: 0; margin-top: 1px; min-width: 62px; text-align: center;
+}
+
+.sev-critical { color: var(--poor); background: rgba(226, 87, 79, 0.13); }
+.sev-high { color: var(--high); background: rgba(236, 138, 74, 0.13); }
+.sev-medium { color: var(--medium); background: rgba(224, 169, 64, 0.13); }
+.sev-low { color: var(--low); background: rgba(127, 148, 173, 0.15); }
+.sev-ok { color: var(--good); background: rgba(55, 201, 143, 0.12); }
+
+.rule__main { flex: 1; min-width: 0; }
+.rule__desc { font-size: 13.5px; line-height: 1.45; }
+.rule__meta { font-size: 11.5px; color: var(--muted-dim); margin-top: 3px; }
+.rule__meta code { font-family: var(--font-mono); font-size: 11px; }
+
+.rule__stat { text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.rule__fail { font-size: 13px; font-weight: 650; }
+.rule__of { font-size: 11px; color: var(--muted-dim); margin-top: 2px; }
+
+.rule__body { padding: 0 4px 16px 78px; }
+
+.rule__note { font-size: 12px; color: var(--muted-dim); margin: 0 0 8px; }
+
+.sample-wrap {
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  overflow: auto;
+}
+
+table { border-collapse: collapse; width: 100%; font-family: var(--font-mono); font-size: 11.5px; }
+th {
+  text-align: left; color: var(--muted-dim); font-weight: 600;
+  padding: 7px 10px; border-bottom: 1px solid var(--panel-border); white-space: nowrap;
+  background: #0f1319;
+}
+td { padding: 6px 10px; color: var(--muted); border-bottom: 1px solid var(--panel-border-soft); white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+
+/* ---------- Source tables ---------- */
+
+.tables-list { margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 6px 18px; }
+.trow { display: flex; justify-content: space-between; font-size: 12.5px; padding: 6px 0; border-bottom: 1px solid var(--panel-border-soft); }
+.trow span:first-child { color: var(--muted); }
+.trow span:last-child { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 600px) {
+  .hero { flex-direction: column; }
+  .score { text-align: left; }
+  .rule__body { padding-left: 4px; }
+  .rule__head { flex-wrap: wrap; }
+}
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <h1 class="page-title">Data Quality Lab</h1>
+    <p class="page-sub">Rule-based quality checks on the Olist e-commerce dataset: duplicates, nulls, orphan keys and inconsistent records.</p>
+
+    <!-- Cold start / loading state -->
+    <section class="startup" id="startup">
+      <div class="spinner" id="startup-spinner"></div>
+      <p class="startup__title" id="startup-title">Starting the demo server…</p>
+      <p class="startup__msg" id="startup-msg">The demo runs on a free server that sleeps when idle. This can take 30–60 seconds the first time.</p>
+      <button class="btn hidden" id="startup-retry" type="button">Try again</button>
+    </section>
+
+    <!-- App -->
+    <section id="app" class="hidden">
+      <div class="card" id="hero"></div>
+
+      <div class="section">
+        <h2 class="section-title">By dimension</h2>
+        <div class="dims" id="dims"></div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title" id="rules-title">Rules</h2>
+        <div class="filters">
+          <div class="seg" id="status-seg">
+            <button type="button" class="seg-btn is-active" data-status="fail">Failing</button>
+            <button type="button" class="seg-btn" data-status="">All</button>
+            <button type="button" class="seg-btn" data-status="pass">Passing</button>
+          </div>
+          <div class="seg" id="sev-seg"></div>
+          <select id="table-select" aria-label="Table"></select>
+        </div>
+        <div class="card" style="padding: 6px 16px">
+          <div id="rules"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <button type="button" class="link-btn" id="tables-toggle">Show source tables</button>
+        <div class="tables-list hidden" id="tables-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+// Point this to your API. On Render this is your Web Service URL.
+const API_BASE = "http://localhost:8006";
+
+const HEALTH_POLL_MS = 3000;
+const HEALTH_TIMEOUT_MS = 120000;
+const SLOW_NOTICE_MS = 25000;
+const REQUEST_TIMEOUT_MS = 10000;
+
+const SEVERITIES = ["critical", "high", "medium", "low"];
+const SEV_CLASS = { critical: "poor", high: "high", medium: "medium", low: "low" };
+
+const $ = (id) => document.getElementById(id);
+const num = new Intl.NumberFormat("en-US");
+
+const state = {
+  summary: null,
+  meta: null,
+  status: "fail",   // default view: what's broken
+  severity: "",
+  dimension: "",
+  table: "",
+  open: new Set(),  // rule_ids currently expanded
+  seq: 0,
+};
+
+// ---------- Helpers ----------
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+async function api(path, timeoutMs = REQUEST_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${API_BASE}${path}`, { signal: controller.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const humanize = (s) => String(s).replace(/_/g, " ");
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? String(iso ?? "") : d.toLocaleString();
+}
+
+function fmtPct(n) {
+  if (n === null || n === undefined) return "—";
+  return `${Number(n).toFixed(3).replace(/0+$/, "").replace(/\.$/, "")}%`;
+}
+
+function failShare(rule) {
+  if (rule.pass_rate_pct === null || rule.pass_rate_pct === undefined) return "";
+  const share = 100 - rule.pass_rate_pct;
+  if (rule.rows_failed > 0 && share < 0.01) return "<0.01% of rows";
+  return `${fmtPct(share)} of rows`;
+}
+
+// ---------- Cold start: wait for the backend instead of redirecting blindly ----------
+
+async function boot() {
+  $("startup").classList.remove("hidden");
+  $("app").classList.add("hidden");
+  $("startup-spinner").classList.remove("hidden");
+  $("startup-retry").classList.add("hidden");
+  $("startup-title").textContent = "Starting the demo server…";
+  $("startup-msg").textContent =
+    "The demo runs on a free server that sleeps when idle. This can take 30–60 seconds the first time.";
+
+  const started = Date.now();
+  let ready = false;
+
+  while (Date.now() - started < HEALTH_TIMEOUT_MS) {
+    try {
+      await api("/health", 8000);
+      ready = true;
+      break;
+    } catch (err) {
+      // sleeping, starting, or report not available yet: keep waiting
+    }
+    if (Date.now() - started > SLOW_NOTICE_MS) {
+      $("startup-title").textContent = "Still starting…";
+      $("startup-msg").textContent = "Almost there. The server is waking up and loading the report. You can keep this tab open.";
+    }
+    await new Promise((r) => setTimeout(r, HEALTH_POLL_MS));
+  }
+
+  if (!ready) return startupFailure("The demo server didn't respond", "It may be down or still waking up. Give it a moment and try again.");
+
+  try {
+    const [summary, meta] = await Promise.all([api("/summary"), api("/meta")]);
+    state.summary = summary;
+    state.meta = meta;
+  } catch (err) {
+    return startupFailure("Couldn't load the report", "The server is up but the request failed. Please try again.");
+  }
+
+  $("startup").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  initApp();
+}
+
+function startupFailure(title, msg) {
+  $("startup-spinner").classList.add("hidden");
+  $("startup-title").textContent = title;
+  $("startup-msg").textContent = msg;
+  $("startup-retry").classList.remove("hidden");
+}
+
+$("startup-retry").addEventListener("click", boot);
+
+// ---------- App ----------
+
+function initApp() {
+  renderHero();
+  renderDims();
+  renderSeverityChips();
+  renderTableSelect();
+  renderSourceTables();
+  loadRules();
+}
+
+function renderHero() {
+  const { summary: s, generated_at, duration_seconds, tables } = state.summary;
+  const failed = s.rules_failed;
+  const tableCount = Object.keys(tables).length;
+
+  const sev = SEVERITIES
+    .filter((k) => (s.failed_by_severity[k] || 0) > 0)
+    .map((k) => `<span class="c-${SEV_CLASS[k]}">${s.failed_by_severity[k]} ${k}</span>`)
+    .join("");
+
+  const headline = failed > 0
+    ? `<div class="hero__count c-${(s.failed_by_severity.critical || 0) > 0 ? "poor" : "medium"}">${failed}</div>
+       <div class="hero__label">rule${failed === 1 ? "" : "s"} failing</div>`
+    : `<div class="hero__count c-good">0</div><div class="hero__label">rules failing</div>`;
+
+  $("hero").innerHTML = `
+    <div class="hero">
+      <div>
+        ${headline}
+        <div class="hero__sub">of ${s.rules_total} rules across ${tableCount} tables${s.rules_skipped ? ` · ${s.rules_skipped} skipped` : ""}</div>
+        ${sev ? `<div class="hero__sev">${sev}</div>` : ""}
+      </div>
+      <div class="score" title="Average pass rate across all rules">
+        <div class="score__value">${fmtPct(s.quality_score_pct)}</div>
+        <div class="score__label">quality score</div>
+      </div>
+    </div>
+    <div class="hero__foot">
+      Checked ${esc(fmtDate(generated_at))} in ${duration_seconds}s. The score is the average pass rate across rules,
+      so a high score can still hide critical failures. Start with the rules below.
+    </div>`;
+}
+
+function renderDims() {
+  const dims = state.summary.summary.by_dimension;
+  $("dims").innerHTML = Object.entries(dims).map(([name, d]) => {
+    const active = state.dimension === name ? " is-active" : "";
+    const val = d.rules_failed > 0
+      ? `<span class="c-medium">${d.rules_failed} failing</span>`
+      : `<span class="c-good">all pass</span>`;
+    return `
+      <button type="button" class="dim${active}" data-dim="${esc(name)}">
+        <div class="dim__name">${esc(humanize(name))}</div>
+        <div class="dim__val">${val}<span class="dim__of">of ${d.rules}</span></div>
+      </button>`;
+  }).join("");
+
+  $("dims").querySelectorAll(".dim").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.dimension = state.dimension === btn.dataset.dim ? "" : btn.dataset.dim;
+      renderDims();
+      loadRules();
+    });
+  });
+}
+
+function renderSeverityChips() {
+  const counts = state.summary.summary.failed_by_severity;
+  const chips = [`<button type="button" class="seg-btn${state.severity === "" ? " is-active" : ""}" data-sev="">Any severity</button>`]
+    .concat(SEVERITIES.map((sv) => {
+      const active = state.severity === sv ? " is-active" : "";
+      return `<button type="button" class="seg-btn${active}" data-sev="${sv}">${sv} (${counts[sv] || 0})</button>`;
+    }));
+  $("sev-seg").innerHTML = chips.join("");
+  $("sev-seg").querySelectorAll(".seg-btn").forEach((b) => {
+    b.addEventListener("click", () => {
+      state.severity = b.dataset.sev;
+      renderSeverityChips();
+      loadRules();
+    });
+  });
+}
+
+function renderTableSelect() {
+  const byTable = state.summary.summary.by_table;
+  $("table-select").innerHTML =
+    `<option value="">All tables</option>` +
+    state.meta.tables.map((t) => {
+      const n = byTable[t] ? byTable[t].rules_failed : 0;
+      return `<option value="${esc(t)}">${esc(humanize(t))}${n ? ` (${n} failing)` : ""}</option>`;
+    }).join("");
+  $("table-select").value = state.table;
+}
+
+$("table-select").addEventListener("change", (e) => {
+  state.table = e.target.value;
+  loadRules();
+});
+
+$("status-seg").querySelectorAll(".seg-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    state.status = btn.dataset.status;
+    $("status-seg").querySelectorAll(".seg-btn").forEach((b) => b.classList.toggle("is-active", b === btn));
+    loadRules();
+  });
+});
+
+function renderSourceTables() {
+  const t = state.summary.tables;
+  $("tables-list").innerHTML = Object.entries(t)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, rows]) => `<div class="trow"><span>${esc(humanize(name))}</span><span>${num.format(rows)} rows</span></div>`)
+    .join("");
+}
+
+$("tables-toggle").addEventListener("click", () => {
+  const box = $("tables-list");
+  const opening = box.classList.contains("hidden");
+  box.classList.toggle("hidden", !opening);
+  $("tables-toggle").textContent = opening ? "Hide source tables" : "Show source tables";
+});
+
+// ---------- Rules ----------
+
+async function loadRules() {
+  const seq = ++state.seq;
+  $("rules").innerHTML = `<div class="empty">Loading…</div>`;
+
+  const params = new URLSearchParams();
+  if (state.status) params.set("status", state.status);
+  if (state.severity) params.set("severity", state.severity);
+  if (state.dimension) params.set("dimension", state.dimension);
+  if (state.table) params.set("table", state.table);
+  const qs = params.toString();
+
+  try {
+    const rules = await api(`/rules${qs ? "?" + qs : ""}`);
+    if (seq !== state.seq) return;
+    renderRules(rules);
+  } catch (err) {
+    if (seq !== state.seq) return;
+    $("rules").innerHTML = `<div class="err">Couldn't load the rules. Try again in a moment.</div>`;
+  }
+}
+
+function renderRules(rules) {
+  const label = { fail: "Failing rules", pass: "Passing rules", "": "All rules" }[state.status];
+  $("rules-title").textContent = `${label} (${rules.length})`;
+
+  if (!rules.length) {
+    const msg = state.status === "fail" && !state.severity && !state.dimension && !state.table
+      ? "No failing rules. Every check passed."
+      : "No rules match these filters.";
+    $("rules").innerHTML = `<div class="empty">${msg}</div>`;
+    return;
+  }
+
+  $("rules").innerHTML = rules.map((r) => {
+    const isFail = r.status === "fail";
+    const isSkipped = r.status === "skipped";
+    const sevBadge = isFail
+      ? `<span class="sev sev-${esc(r.severity)}">${esc(r.severity)}</span>`
+      : `<span class="sev sev-ok">${isSkipped ? "skipped" : "pass"}</span>`;
+    const stat = isSkipped
+      ? `<div class="rule__fail c-low">Nothing to check</div>`
+      : `<div class="rule__fail ${isFail ? "c-" + SEV_CLASS[r.severity] : "c-good"}">${isFail ? num.format(r.rows_failed) + " failed" : "0 failed"}</div>
+         <div class="rule__of">${isFail ? esc(failShare(r)) + " · " : ""}${num.format(r.rows_checked)} checked</div>`;
+    const open = state.open.has(r.rule_id);
+
+    return `
+      <div class="rule" data-id="${esc(r.rule_id)}">
+        <button type="button" class="rule__head" aria-expanded="${open}">
+          ${sevBadge}
+          <div class="rule__main">
+            <div class="rule__desc">${esc(r.description)}</div>
+            <div class="rule__meta">${esc(humanize(r.table))} · ${esc(humanize(r.dimension))} · <code>${esc(r.rule_id)}</code></div>
+          </div>
+          <div class="rule__stat">${stat}</div>
+        </button>
+        ${open ? `<div class="rule__body">${renderEvidence(r)}</div>` : ""}
+      </div>`;
+  }).join("");
+
+  $("rules").querySelectorAll(".rule__head").forEach((head) => {
+    head.addEventListener("click", () => {
+      const id = head.parentElement.dataset.id;
+      const rule = rules.find((x) => x.rule_id === id);
+      const body = head.parentElement.querySelector(".rule__body");
+      if (state.open.has(id)) {
+        state.open.delete(id);
+        if (body) body.remove();
+        head.setAttribute("aria-expanded", "false");
+      } else {
+        state.open.add(id);
+        const div = document.createElement("div");
+        div.className = "rule__body";
+        div.innerHTML = renderEvidence(rule);
+        head.parentElement.append(div);
+        head.setAttribute("aria-expanded", "true");
+      }
+    });
+  });
+}
+
+function renderEvidence(rule) {
+  const sample = rule.sample || [];
+  if (!sample.length) {
+    return `<p class="rule__note">${rule.status === "skipped" ? "There were no rows in scope for this rule." : "No failing rows to show."}</p>`;
+  }
+  const cols = Object.keys(sample[0]);
+  const head = cols.map((c) => `<th>${esc(c)}</th>`).join("");
+  const rows = sample.map((rec) => `<tr>${cols.map((c) => `<td>${esc(rec[c])}</td>`).join("")}</tr>`).join("");
+  const more = rule.rows_failed > sample.length ? ` of ${num.format(rule.rows_failed)} failing rows` : "";
+  return `
+    <p class="rule__note">Showing ${sample.length}${more}. Rule checked in ${rule.duration_seconds}s.</p>
+    <div class="sample-wrap"><table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+// ---------- Boot ----------
+
+boot();
+  </script>
+</body>
+</html>
